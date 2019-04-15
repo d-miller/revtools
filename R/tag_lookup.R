@@ -29,7 +29,9 @@ tag_lookup <- function(
         "address" = "AD",
         "editor" = "ED",
         "edition" = "ED",
-        "language" = "LA"
+        "language" = "LA",
+        "notes" = "N1", 
+        "misc" = "M1"
       )
     },
     "ris_write" = {
