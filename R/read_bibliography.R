@@ -155,7 +155,7 @@ prep_ris <- function(
           "^\\s+|\\s+$", "",
           substr(a, (end_caps+1), nchar(a))
         )
-				content <- gsub("^-|:", "", content)
+				content <- gsub("^(-|:)", "", content)
 				content <- gsub("^\\s+|\\s+$", "", content)
 				return(
           c(tag, content)
