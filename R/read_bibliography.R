@@ -465,7 +465,7 @@ read_ris <- function(x){
             x = result$year[which(year_check>0)],
             start = year_check[1],
             stop = year_check[1]+3
-          )
+          )[1]
 				}else{
           result$year <- ""
         }
