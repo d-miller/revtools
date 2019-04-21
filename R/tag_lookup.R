@@ -31,7 +31,8 @@ tag_lookup <- function(
         "edition" = "ED",
         "language" = "LA",
         "notes" = "N1", 
-        "misc" = "M1"
+        "misc" = "M1",
+        "user_defined" = "U1"
       )
     },
     "ris_write" = {
