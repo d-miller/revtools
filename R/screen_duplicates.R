@@ -152,7 +152,7 @@ screen_duplicates <- function(x){
     # i.e. possible matches can only be found in subsets defined by these columns
     output$group_selector <- renderUI({
       if(!is.null(data$columns) & !display$data_present){
-        lookup <- data$columns %in% c("journal", "year")
+        lookup <- data$columns %in% c("nsf_proj") #c("journal", "year")
         if(any(lookup)){
           selected <- data$columns[which(lookup)]
         }else{
@@ -433,57 +433,59 @@ screen_duplicates <- function(x){
       )
     })
 
+    #function to check if the end of duplicates have been reached
+    remove_dups = function(remove = NULL) {
+
+      #remove the non-selected entry, but coalesce non-missing information
+      if (!is.null(remove)) {
+        #get the labels to include and exclude
+        label_exclude <- data$grouped[[progress$entry]]$label[remove]
+        label_include <- data$grouped[[progress$entry]]$label[3-remove]
+
+        #get the row numbers in the data frame
+        rowE <- data$raw$label == label_exclude
+        rowI <- data$raw$label == label_include
+
+        #coalesce the rows and remove the excluded rows (requires dplyr package)
+        data$raw[rowI, ] <- coalesce(data$raw[rowI, ], data$raw[rowE, ]) 
+        data$raw <- data$raw[!rowE, ]
+
+        #remove all the duplicate pairs that have the exclude label
+        rmDupPair <- function(pair) label_exclude %in% pair$label
+        rmIndexes <- sapply(data$grouped, rmDupPair)
+        data$grouped <- data$grouped[!rmIndexes]
+      }
+
+      #if the pair is not a duplicate...
+      if (is.null(remove)) {
+
+        #change the matches number for the second label in the pair
+        label_replace <- data$grouped[[progress$entry]]$label[2]
+        row_replace <- data$raw$label == label_replace
+        data$raw$matches[row_replace] <- max(data$raw$matches)+1
+
+        #remove only the current duplicate pair
+        data$grouped <- data$grouped[-progress$entry]
+      }
+
+      #check if the end of duplicates has been reached
+      if(progress$entry > length(data$grouped)){
+        if(length(data$grouped) == 0){
+          progress$entry <- NULL
+          save_modal(
+            x = data$raw,
+            title = "Screening Complete: Save results?"
+          )
+        }else{
+          progress$entry <- length(data$grouped)
+        }
+      }
+    }
+
     # respond when actionButtons are triggered
-    observeEvent(input$selected_1, {
-      label_exclude <- data$grouped[[progress$entry]]$label[2]
-      data$raw <- data$raw[which(data$raw$label != label_exclude), ]
-      data$grouped <- data$grouped[-progress$entry]
-      if(progress$entry > length(data$grouped)){
-        if(length(data$grouped) == 0){
-          progress$entry <- NULL
-          save_modal(
-            x = data$raw,
-            title = "Screening Complete: Save results?"
-          )
-        }else{
-          progress$entry <- length(data$grouped)
-        }
-      }
-    })
-
-    observeEvent(input$selected_2, {
-      label_exclude <- data$grouped[[progress$entry]]$label[1]
-      data$raw <- data$raw[which(data$raw$label != label_exclude), ]
-      data$grouped <- data$grouped[-progress$entry]
-      if(progress$entry > length(data$grouped)){
-        if(length(data$grouped) == 0){
-          progress$entry <- NULL
-          save_modal(
-            x = data$raw,
-            title = "Screening Complete: Save results?"
-          )
-        }else{
-          progress$entry <- length(data$grouped)
-        }
-      }
-    })
-
-    observeEvent(input$selected_none, {
-      label_exclude <- data$grouped[[progress$entry]]$label[2]
-      data$raw$matches[which(data$raw$label == label_exclude)] <- max(data$raw$matches)+1
-      data$grouped <- data$grouped[-progress$entry]
-      if(progress$entry > length(data$grouped)){
-        if(length(data$grouped) == 0){
-          progress$entry <- NULL
-          save_modal(
-            x = data$raw,
-            title = "Screening Complete: Save results?"
-          )
-        }else{
-          progress$entry <- length(data$grouped)
-        }
-      }
-    })
+    observeEvent(input$selected_1,    { remove_dups(2)    })
+    observeEvent(input$selected_2,    { remove_dups(1)    })
+    observeEvent(input$selected_none, { remove_dups(NULL) })
 
     observeEvent(input$selected_previous, {
       if(progress$entry > 1){
