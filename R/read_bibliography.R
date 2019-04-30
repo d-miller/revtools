@@ -73,6 +73,20 @@ read_bibliography_internal <- function(
       blank.lines.skip = FALSE
     )
     Encoding(z) <- "latin1"
+
+    #manually change encoding for some common Unicode characters
+    z <- gsub("<c3><a[0-5]>", "a", z)
+    z <- gsub("<c3><a[c-f]>", "i", z)
+    z <- gsub("<c3><a[8-b]>", "e", z)
+    z <- gsub("<c3><b[2-6]>", "o", z)
+    z <- gsub("<c3><b[9-c]>", "u", z)
+    z <- gsub("<c3><8[0-5]>", "A", z)
+    z <- gsub("<c3><b1>", "n", z)
+    z <- gsub("<e2><80><9[0-5]>", "-", z)
+    z <- gsub("<e2><80><9[8-9]>", "'", z)
+    z <- gsub("<e2><80><9[c-d]>", '"', z)
+    z <- gsub("<c2>a0>", " ", z)
+    
     z <- gsub("<[[:alnum:]]{2}>", "", z) # remove errors from above process
 
     # detect whether file is bib-like or ris-like via the most common single characters
