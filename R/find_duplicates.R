@@ -6,7 +6,7 @@ find_duplicates <- function(
   method = "fuzz_m_ratio",
   threshold = 0.1,
   to_lower = TRUE,
-  remove_punctuation = FALSE
+  remove_punctuation = TRUE
 ){
 
   # error catching

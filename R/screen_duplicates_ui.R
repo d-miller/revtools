@@ -56,12 +56,12 @@ screen_duplicates_ui <- function(){
         checkboxInput(
           inputId = "match_lower",
           label = "Make lower case?",
-          value = FALSE
+          value = TRUE
         ),
         checkboxInput(
           inputId = "match_punctuation",
           label = "Remove punctuation?",
-          value = FALSE
+          value = TRUE
         ),
         actionButton(
           inputId = "calculate_duplicates",
